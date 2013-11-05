@@ -230,11 +230,11 @@ cmd_start() {
 }
 
 cmd_finish() {
-	DEFINE_boolean fetch false "fetch from $ORIGIN before performing finish" F
-	DEFINE_boolean rebase false "rebase instead of merge" r
+	DEFINE_boolean fetch true "fetch from $ORIGIN before performing finish" F
+	DEFINE_boolean rebase true "rebase instead of merge" r
 	DEFINE_boolean keep false "keep branch after performing finish" k
 	DEFINE_boolean force_delete false "force delete feature branch after finish" D
-	DEFINE_boolean squash false "squash feature during merge" S
+	DEFINE_boolean squash true "squash feature during merge" S
 	parse_args "$@"
 	expand_nameprefix_arg_or_current
 
@@ -312,17 +312,17 @@ cmd_finish() {
 
 	# merge into BASE
 	git_do checkout "$DEVELOP_BRANCH"
-	if [ "$(git rev-list -n2 "$DEVELOP_BRANCH..$BRANCH" | wc -l)" -eq 1 ]; then
-		git_do merge --ff "$BRANCH"
-	else
+	#if [ "$(git rev-list -n2 "$DEVELOP_BRANCH..$BRANCH" | wc -l)" -eq 1 ]; then
+	#	git_do merge --ff "$BRANCH"
+	#else
 		if noflag squash; then
 		    git_do merge --no-ff "$BRANCH"
 		else
 			git_do merge --squash "$BRANCH"
-			git_do commit
-			git_do merge "$BRANCH"
+			git_do commit && \
+ 			git_do merge "$BRANCH"
 		fi
-	fi
+	#fi
 
 	if [ $? -ne 0 ]; then
 		# oops.. we have a merge conflict!
