@@ -319,7 +319,19 @@ cmd_finish() {
 		    git_do merge --no-ff "$BRANCH"
 		else
 			git_do merge --squash "$BRANCH"
-			git_do commit && \
+			git_do commit 
+			if [ $? -ne 0 ]; then
+				mkdir -p "$DOT_GIT_DIR/.gitflow"
+				echo "$DEVELOP_BRANCH" > "$DOT_GIT_DIR/.gitflow/MERGE_BASE"
+				echo "The commit hooks failed :-("
+				echo "Please fix the changes as suggested and commit again"
+		
+				echo "You can then complete the finish by running it again:"
+				echo "    git flow feature finish $NAME"
+				echo
+				git_do checkout "$BRANCH"
+				exit 1
+			fi
  			git_do merge "$BRANCH"
 		fi
 	#fi
